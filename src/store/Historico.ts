@@ -1,7 +1,5 @@
-import { Item } from 'react-native-paper/lib/typescript/components/List/List';
-import create from 'zustand'
-import { api } from '../api';
-
+import create from "zustand";
+import { api } from "../api";
 
 export interface ItemHistorico {
   jogoId: number;
@@ -11,24 +9,30 @@ export interface ItemHistorico {
 
 interface HistoricoStorePros {
   historico: ItemHistorico[];
-  loadData(userId:number, userEmail:string):Promise<void>;
+  loadData(id: number, email: string): Promise<void>;
 }
 
-export const useHistoricoStore = create<HistoricoStorePros>(set => ({
+export const useHistoricoStore = create<HistoricoStorePros>((set) => ({
   historico: [],
-  loadData: async (userId: number, userEmail: string) => {
-    const response = await api.get('pedidos',{
+  loadData: async (id, email) => {
+    const response = await api.get("pedidos", {
       params: {
-        userId,
-        userEmail
-      }
-    })
-    let myHistory:any[] = [];
-    myHistory = response.data.map((item: { items: ItemHistorico[]; }) => item.items) || [];
+        userId: id,
+        userEmail: email,
+      },
+    });
 
-    if(myHistory.length>0){
-      myHistory = myHistory.reduce((primeiro, segundo)=> ([...primeiro, ...segundo]));
+    let myHistory =
+      response.data.map((item: { items: ItemHistorico[] }) => item.items) || [];
+    if (myHistory.length > 0) {
+      myHistory = myHistory.reduce(
+        (primeiro: ItemHistorico[], segundo: ItemHistorico[]) => [
+          ...primeiro,
+          ...segundo,
+        ]
+      );
     }
-    set(state => ({historico: myHistory as ItemHistorico[]}));
-  }
-}))
+
+    set((state) => ({ historico: myHistory as ItemHistorico[] }));
+  },
+}));
